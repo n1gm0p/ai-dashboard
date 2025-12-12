@@ -1,0 +1,68 @@
+import React from 'react';
+import { FolderOpen, Trash } from 'lucide-react';
+
+const DataPage = ({ events, setEvents }) => {
+	const handleDelete = (id) => {
+		setEvents(events.filter(ev => ev.id !== id));
+	};
+
+	const handleDownload = (image) => {
+		window.open(image, '_blank');
+	};
+
+	return (
+		<div>
+			<h1 className="text-3xl mb-6 text-gray-900">Данные событий</h1>
+			<div className="bg-white rounded-xl shadow overflow-auto">
+				<table className="w-full text-left border-collapse min-w-[500px]">
+					<thead>
+						<tr className="border-b border-gray-200">
+							<th className="p-3 text-gray-600">Изображение</th>
+							<th className="p-3 text-gray-600">Тип</th>
+							<th className="p-3 text-gray-600">Лобби</th>
+							<th className="p-3 text-gray-600">Время</th>
+							<th className="p-3 text-gray-600">Статус</th>
+							<th className="p-3 text-gray-600">Дата</th>
+							<th className="p-3 text-gray-600">Действие</th>
+						</tr>
+					</thead>
+					<tbody>
+						{events.length ? events.map(ev => (
+							<tr key={ev.id} className="border-b border-gray-100 hover:bg-gray-50 transition">
+								<td className="p-3">
+									<img src={ev.image} alt={`Событие ${ev.id}`} className="w-20 h-12 object-cover rounded" />
+								</td>
+								<td className="p-3 text-gray-900">{ev.type}</td>
+								<td className="p-3 text-gray-900">{ev.lobby}</td>
+								<td className="p-3 text-gray-900">{ev.time}</td>
+								<td className="p-3 text-gray-900">{ev.status || 'Ещё не опознано'}</td>
+								<td className="p-3 text-gray-900">{ev.date}</td>
+								<td className="p-3 flex gap-2">
+									<button
+										onClick={() => handleDownload(ev.image)}
+										className="p-2 rounded-xl bg-[#E7D6C8] hover:bg-[#d9c1b2] transition"
+									>
+										<FolderOpen size={18} color="white" />
+									</button>
+									<button
+										onClick={() => handleDelete(ev.id)}
+										className="p-2 rounded-xl bg-[#F87171] hover:bg-[#e55a5a] transition"
+									>
+										<Trash size={18} color="white" />
+									</button>
+
+								</td>
+							</tr>
+						)) : (
+							<tr>
+								<td colSpan="7" className="text-center p-4 text-gray-500">Нет событий</td>
+							</tr>
+						)}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	);
+};
+
+export default DataPage;
