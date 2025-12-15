@@ -40,3 +40,43 @@
 .read-the-docs {
   color: #888;
 }
+
+
+
+
+
+/* Стили для таблицы */
+.table {
+  table-layout: fixed; /* Фиксированная ширина столбцов */
+  width: 100%;
+}
+
+/* Стили для столбцов с фиксированными позициями */
+.fixed-column {
+  position: sticky;
+  left: 0;
+  background-color: white;
+  z-index: 1;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.fixed-column-2 {
+  position: sticky;
+  left: 200px; /* Смещаем на ширину первого столбца */
+  background-color: white;
+  z-index: 2;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Стили для заголовков */
+.table th {
+  background-color: #f4f4f4;
+  white-space: nowrap;
+}
+
+.table th, .table td {
+  padding: 0.75rem;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+}

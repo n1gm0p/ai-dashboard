@@ -1,17 +1,39 @@
 import React, { useState } from 'react';
+import { useStateContext } from './StateContext'; 
 
 const STATUSES = ['Подтверждено', 'В процессе', 'Отклонено'];
 
 const VerifyPage = ({ events, setEvents }) => {
-	const [currentIndex, setCurrentIndex] = useState(0);
+	const { currentEventIndex, setIndex } = useStateContext(); 
+	const [currentIndex, setCurrentIndex] = useState(currentEventIndex);
 
 	const handleStatusChange = (id, newStatus) => {
+		setEvents((prevEvents) => {
+			const updatedEvents = prevEvents.map((ev) =>
+				ev.id === id ? { ...ev, status: newStatus } : ev
+			);
 
-		setEvents(events.map(ev => ev.id === id ? { ...ev, status: newStatus } : ev));
+
+			if (newStatus === 'Подтверждено') {
+				const updatedEvent = updatedEvents.find(ev => ev.id === id && ev.type === 'Мусор');
+				if (updatedEvent) {
+					updatedEvent.status = 'Ожидает уборки';
+				}
+			}
+
+			return updatedEvents;
+		});
+
 
 		if (currentIndex < events.length - 1) {
 			setCurrentIndex(currentIndex + 1);
+			setIndex(currentIndex + 1);
 		}
+	};
+
+	const handleResetToFirst = () => {
+		setCurrentIndex(0);
+		setIndex(0);
 	};
 
 	if (!events.length) return <p className="text-center text-gray-500 mt-10">Нет событий для проверки</p>;
@@ -22,6 +44,16 @@ const VerifyPage = ({ events, setEvents }) => {
 	return (
 		<div className="flex-1 p-6 bg-[#F5F6FA] flex flex-col items-center">
 			<h1 className="text-3xl mb-6 text-gray-900">Проверка событий</h1>
+
+
+			{currentIndex === 9 && (
+				<button
+					className="px-4 py-2 bg-[#E7D6C8] text-white rounded-xl mb-4"
+					onClick={handleResetToFirst}
+				>
+					Вернуться к первой карточке
+				</button>
+			)}
 
 			<div className="bg-white p-6 rounded-2xl shadow w-full max-w-lg flex flex-col items-center">
 				<div className="w-full flex justify-center mb-4">
@@ -42,7 +74,7 @@ const VerifyPage = ({ events, setEvents }) => {
 						<button
 							key={status}
 							className={`px-4 py-2 rounded-xl text-sm border font-medium transition
-								${ev.status === status
+                ${ev.status === status
 									? 'bg-[#E7D6C8] text-white border-[#E7D6C8]'
 									: 'bg-white text-black border-gray-300 hover:bg-gray-100'
 								}`}

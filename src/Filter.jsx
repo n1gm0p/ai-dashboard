@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import DatePicker, { registerLocale } from "react-datepicker";
 import ru from "date-fns/locale/ru";
 import "react-datepicker/dist/react-datepicker.css";
@@ -7,7 +7,7 @@ import "./datepicker.css";
 registerLocale("ru", ru);
 
 const TYPES = ["Мусор", "Консьерж", "Конфликт"];
-const STATUS = ["Подтверждено", "В процессе", "Отклонено"];
+const STATUS = ["Подтверждено", "В процессе", "Отклонено", "Ожидает уборки", "Ещё не опознано", "Чисто"];  // Добавлен статус "Чисто"
 
 const CustomDateInput = React.forwardRef(({ value, onClick, placeholder }, ref) => (
 	<button
@@ -20,10 +20,27 @@ const CustomDateInput = React.forwardRef(({ value, onClick, placeholder }, ref) 
 ));
 
 const Filter = ({ events, setEvents }) => {
-	const [start, setStart] = useState(null);
-	const [end, setEnd] = useState(null);
-	const [selectedTypes, setSelectedTypes] = useState([]);
-	const [selectedStatus, setSelectedStatus] = useState([]);
+
+	const [start, setStart] = useState(
+		localStorage.getItem('start') ? new Date(localStorage.getItem('start')) : null
+	);
+	const [end, setEnd] = useState(
+		localStorage.getItem('end') ? new Date(localStorage.getItem('end')) : null
+	);
+	const [selectedTypes, setSelectedTypes] = useState(
+		JSON.parse(localStorage.getItem('selectedTypes')) || []
+	);
+	const [selectedStatus, setSelectedStatus] = useState(
+		JSON.parse(localStorage.getItem('selectedStatus')) || []
+	);
+
+
+	useEffect(() => {
+		if (start) localStorage.setItem('start', start.toISOString());
+		if (end) localStorage.setItem('end', end.toISOString());
+		localStorage.setItem('selectedTypes', JSON.stringify(selectedTypes));
+		localStorage.setItem('selectedStatus', JSON.stringify(selectedStatus));
+	}, [start, end, selectedTypes, selectedStatus]);
 
 	const toggleType = (type) => {
 		setSelectedTypes((prev) =>
@@ -54,6 +71,10 @@ const Filter = ({ events, setEvents }) => {
 		setEnd(null);
 		setSelectedTypes([]);
 		setSelectedStatus([]);
+		localStorage.removeItem('start');
+		localStorage.removeItem('end');
+		localStorage.removeItem('selectedTypes');
+		localStorage.removeItem('selectedStatus');
 	};
 
 	const checkboxClass =
@@ -94,8 +115,8 @@ const Filter = ({ events, setEvents }) => {
 						<label
 							key={t}
 							className={`${checkboxClass} ${selectedTypes.includes(t)
-									? "bg-[#E7D6C8] text-white border-[#E7D6C8]"
-									: "bg-white text-black border-[#E7D6C8]"
+								? "bg-[#E7D6C8] text-white border-[#E7D6C8]"
+								: "bg-white text-black border-[#E7D6C8]"
 								}`}
 						>
 							<input
@@ -111,24 +132,106 @@ const Filter = ({ events, setEvents }) => {
 
 				<div className="flex gap-2 items-center ml-[10px]">
 					<span className="text-gray-700 text-sm font-medium">Статус:</span>
-					{STATUS.map((s) => (
-						<label
-							key={s}
-							className={`${checkboxClass} ${selectedStatus.includes(s)
-									? "bg-[#E7D6C8] text-white border-[#E7D6C8]"
-									: "bg-white text-black border-[#E7D6C8]"
-								}`}
-						>
-							<input
-								type="checkbox"
-								className="hidden"
-								checked={selectedStatus.includes(s)}
-								onChange={() => toggleStatus(s)}
-							/>
-							{s}
-						</label>
-					))}
+
+
+					<label
+						key="Подтверждено"
+						className={`${checkboxClass} ${selectedStatus.includes("Подтверждено")
+							? "bg-[#E7D6C8] text-white border-[#E7D6C8]"
+							: "bg-white text-black border-[#E7D6C8]"}`}
+					>
+						<input
+							type="checkbox"
+							className="hidden"
+							checked={selectedStatus.includes("Подтверждено")}
+							onChange={() => toggleStatus("Подтверждено")}
+						/>
+						Подтверждено
+					</label>
+
+
+					<label
+						key="В процессе"
+						className={`${checkboxClass} ${selectedStatus.includes("В процессе")
+							? "bg-[#E7D6C8] text-white border-[#E7D6C8]"
+							: "bg-white text-black border-[#E7D6C8]"}`}
+					>
+						<input
+							type="checkbox"
+							className="hidden"
+							checked={selectedStatus.includes("В процессе")}
+							onChange={() => toggleStatus("В процессе")}
+						/>
+						В процессе
+					</label>
+
+
+					<label
+						key="Отклонено"
+						className={`${checkboxClass} ${selectedStatus.includes("Отклонено")
+							? "bg-[#E7D6C8] text-white border-[#E7D6C8]"
+							: "bg-white text-black border-[#E7D6C8]"}`}
+					>
+						<input
+							type="checkbox"
+							className="hidden"
+							checked={selectedStatus.includes("Отклонено")}
+							onChange={() => toggleStatus("Отклонено")}
+						/>
+						Отклонено
+					</label>
+
+
+					<div className="border-l-2 border-gray-300 h-8 mx-2" />
+
+
+					<label
+						key="Ожидает уборки"
+						className={`${checkboxClass} ${selectedStatus.includes("Ожидает уборки")
+							? "bg-[#E7D6C8] text-white border-[#E7D6C8]"
+							: "bg-white text-black border-[#E7D6C8]"}`}
+					>
+						<input
+							type="checkbox"
+							className="hidden"
+							checked={selectedStatus.includes("Ожидает уборки")}
+							onChange={() => toggleStatus("Ожидает уборки")}
+						/>
+						Ожидает уборки
+					</label>
+
+
+					<label
+						key="Ещё не опознано"
+						className={`${checkboxClass} ${selectedStatus.includes("Ещё не опознано")
+							? "bg-[#E7D6C8] text-white border-[#E7D6C8]"
+							: "bg-white text-black border-[#E7D6C8]"}`}
+					>
+						<input
+							type="checkbox"
+							className="hidden"
+							checked={selectedStatus.includes("Ещё не опознано")}
+							onChange={() => toggleStatus("Ещё не опознано")}
+						/>
+						Ещё не опознано
+					</label>
+
+					<label
+						key="Чисто"
+						className={`${checkboxClass} ${selectedStatus.includes("Чисто")
+							? "bg-[#E7D6C8] text-white border-[#E7D6C8]"
+							: "bg-white text-black border-[#E7D6C8]"}`}
+					>
+						<input
+							type="checkbox"
+							className="hidden"
+							checked={selectedStatus.includes("Чисто")}
+							onChange={() => toggleStatus("Чисто")}
+						/>
+						Чисто
+					</label>
 				</div>
+
 
 				<button
 					onClick={resetFilters}
@@ -163,7 +266,7 @@ const Filter = ({ events, setEvents }) => {
 										{new Date(item.date).toLocaleDateString("ru-RU")}
 									</td>
 									<td className="p-3 text-gray-900">{item.type}</td>
-									<td className="p-3 text-gray-900">{item.status}</td>
+									<td className="p-3 text-gray-900">{item.status || 'Ещё не опознано'}</td>
 								</tr>
 							))
 						) : (
