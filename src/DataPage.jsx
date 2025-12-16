@@ -1,13 +1,30 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FolderOpen, Trash } from 'lucide-react';
 
 const DataPage = ({ events, setEvents }) => {
+	const [isModalOpen, setIsModalOpen] = useState(false); 
+	const [currentImage, setCurrentImage] = useState(null);
+
 	const handleDelete = (id) => {
 		setEvents(events.filter(ev => ev.id !== id));
 	};
 
-	const handleDownload = (image) => {
-		window.open(image, '_blank');
+	const handleDownload = (image, filename) => {
+		const a = document.createElement("a"); 
+		a.href = image; 
+		a.download = filename || "download"; 
+		document.body.appendChild(a); 
+		a.click(); 
+		document.body.removeChild(a);  
+	};
+
+	const handleImageClick = (image) => {
+		setCurrentImage(image); 
+		setIsModalOpen(true); 
+	};
+
+	const handleCloseModal = () => {
+		setIsModalOpen(false); 
 	};
 
 	return (
@@ -30,7 +47,12 @@ const DataPage = ({ events, setEvents }) => {
 						{events.length ? events.map(ev => (
 							<tr key={ev.id} className="border-b border-gray-100 hover:bg-gray-50 transition">
 								<td className="p-3">
-									<img src={ev.image} alt={`Событие ${ev.id}`} className="w-20 h-12 object-cover rounded" />
+									<img
+										src={ev.image}
+										alt={`Событие ${ev.id}`}
+										className="w-20 h-12 object-cover rounded cursor-pointer"
+										onClick={() => handleImageClick(ev.image)} 
+									/>
 								</td>
 								<td className="p-3 text-gray-900">{ev.type}</td>
 								<td className="p-3 text-gray-900">{ev.lobby}</td>
@@ -39,7 +61,7 @@ const DataPage = ({ events, setEvents }) => {
 								<td className="p-3 text-gray-900">{ev.date}</td>
 								<td className="p-3 flex gap-2">
 									<button
-										onClick={() => handleDownload(ev.image)}
+										onClick={() => handleDownload(ev.image, `event_${ev.id}.jpg`)}
 										className="p-2 rounded-xl bg-[#E7D6C8] hover:bg-[#d9c1b2] transition"
 									>
 										<FolderOpen size={18} color="white" />
@@ -50,7 +72,6 @@ const DataPage = ({ events, setEvents }) => {
 									>
 										<Trash size={18} color="white" />
 									</button>
-
 								</td>
 							</tr>
 						)) : (
@@ -61,6 +82,21 @@ const DataPage = ({ events, setEvents }) => {
 					</tbody>
 				</table>
 			</div>
+
+
+			{isModalOpen && (
+				<div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+					<div className="relative bg-white p-6 rounded-lg">
+						<button
+							className="absolute top-2 right-2 text-sm text-gray-500"
+							onClick={handleCloseModal}
+						>
+							x
+						</button>
+						<img src={currentImage} alt="Большое изображение" className="max-w-full max-h-[80vh] object-contain" />
+					</div>
+				</div>
+			)}
 		</div>
 	);
 };
