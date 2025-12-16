@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { useStateContext } from './StateContext'; 
+import { ArrowLeft } from 'lucide-react';
+import { useStateContext } from './StateContext';
 
 const STATUSES = ['Подтверждено', 'В процессе', 'Отклонено'];
 
 const VerifyPage = ({ events, setEvents }) => {
-	const { currentEventIndex, setIndex } = useStateContext(); 
+	const { currentEventIndex, setIndex } = useStateContext();
 	const [currentIndex, setCurrentIndex] = useState(currentEventIndex);
+
 
 	const handleStatusChange = (id, newStatus) => {
 		setEvents((prevEvents) => {
@@ -31,9 +33,18 @@ const VerifyPage = ({ events, setEvents }) => {
 		}
 	};
 
+
 	const handleResetToFirst = () => {
 		setCurrentIndex(0);
 		setIndex(0);
+	};
+
+
+	const handleBack = () => {
+		if (currentIndex > 0) {
+			setCurrentIndex(currentIndex - 1);
+			setIndex(currentIndex - 1);
+		}
 	};
 
 	if (!events.length) return <p className="text-center text-gray-500 mt-10">Нет событий для проверки</p>;
@@ -45,17 +56,8 @@ const VerifyPage = ({ events, setEvents }) => {
 		<div className="flex-1 p-6 bg-[#F5F6FA] flex flex-col items-center">
 			<h1 className="text-3xl mb-6 text-gray-900">Проверка событий</h1>
 
-
-			{currentIndex === 9 && (
-				<button
-					className="px-4 py-2 bg-[#E7D6C8] text-white rounded-xl mb-4"
-					onClick={handleResetToFirst}
-				>
-					Вернуться к первой карточке
-				</button>
-			)}
-
 			<div className="bg-white p-6 rounded-2xl shadow w-full max-w-lg flex flex-col items-center">
+
 				<div className="w-full flex justify-center mb-4">
 					<img
 						src={ev.image}
@@ -69,12 +71,13 @@ const VerifyPage = ({ events, setEvents }) => {
 				</p>
 				<p className="text-gray-500 mb-4 text-center">{ev.time} | {displayStatus}</p>
 
+
 				<div className="flex gap-4 mb-4">
 					{STATUSES.map(status => (
 						<button
 							key={status}
 							className={`px-4 py-2 rounded-xl text-sm border font-medium transition
-                ${ev.status === status
+								${ev.status === status
 									? 'bg-[#E7D6C8] text-white border-[#E7D6C8]'
 									: 'bg-white text-black border-gray-300 hover:bg-gray-100'
 								}`}
@@ -88,7 +91,25 @@ const VerifyPage = ({ events, setEvents }) => {
 				<p className="text-gray-500 text-sm">
 					Событие {currentIndex + 1} из {events.length}
 				</p>
+
+
+				{currentIndex > 0 && (
+					<button
+						className="flex items-center px-2 py-2 bg-[#E7D6C8] text-white rounded-xl mt-4 pl-4"
+						onClick={handleBack}
+					>
+						<ArrowLeft size={20} className="mr-2" />
+					</button>
+				)}
 			</div>
+			{currentIndex === events.length - 1 && (
+				<button
+					className="px-4 py-2 bg-[#E7D6C8] text-white rounded-xl mt-4"
+					onClick={handleResetToFirst}
+				>
+					Вернуться к первой карточке
+				</button>
+			)}
 		</div>
 	);
 };
