@@ -45,13 +45,12 @@
 
 
 
-/* Стили для таблицы */
 .table {
-  table-layout: fixed; /* Фиксированная ширина столбцов */
+  table-layout: fixed; 
   width: 100%;
 }
 
-/* Стили для столбцов с фиксированными позициями */
+
 .fixed-column {
   position: sticky;
   left: 0;
@@ -62,13 +61,13 @@
 
 .fixed-column-2 {
   position: sticky;
-  left: 200px; /* Смещаем на ширину первого столбца */
+  left: 200px;
   background-color: white;
   z-index: 2;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Стили для заголовков */
+
 .table th {
   background-color: #f4f4f4;
   white-space: nowrap;
