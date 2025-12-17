@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { FolderOpen, Trash } from 'lucide-react';
 
+const STATUSES = ['Подтверждено', 'В процессе', 'Отклонено'];
+
 const DataPage = ({ events, setEvents }) => {
-	const [isModalOpen, setIsModalOpen] = useState(false); 
+	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [currentImage, setCurrentImage] = useState(null);
 
 	const handleDelete = (id) => {
@@ -10,21 +12,37 @@ const DataPage = ({ events, setEvents }) => {
 	};
 
 	const handleDownload = (image, filename) => {
-		const a = document.createElement("a"); 
-		a.href = image; 
-		a.download = filename || "download"; 
-		document.body.appendChild(a); 
-		a.click(); 
-		document.body.removeChild(a);  
+		const a = document.createElement("a");
+		a.href = image;
+		a.download = filename || "download";
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
 	};
 
 	const handleImageClick = (image) => {
-		setCurrentImage(image); 
-		setIsModalOpen(true); 
+		setCurrentImage(image);
+		setIsModalOpen(true);
 	};
 
 	const handleCloseModal = () => {
-		setIsModalOpen(false); 
+		setIsModalOpen(false);
+	};
+
+
+	const getStatusClass = (status) => {
+		switch (status) {
+			case 'Подтверждено':
+				return 'bg-green-100 text-[#38AD4D]';
+			case 'Чисто':
+				return 'bg-green-100 text-[#38AD4D]';
+			case 'В процессе':
+				return 'bg-yellow-100 text-[#CAC52C]';
+			case 'Отклонено':
+				return 'bg-red-100 text-red-600';
+			default:
+				return 'bg-gray-100 text-gray-500';
+		}
 	};
 
 	return (
@@ -51,13 +69,19 @@ const DataPage = ({ events, setEvents }) => {
 										src={ev.image}
 										alt={`Событие ${ev.id}`}
 										className="w-20 h-12 object-cover rounded cursor-pointer"
-										onClick={() => handleImageClick(ev.image)} 
+										onClick={() => handleImageClick(ev.image)}
 									/>
 								</td>
 								<td className="p-3 text-gray-900">{ev.type}</td>
 								<td className="p-3 text-gray-900">{ev.lobby}</td>
 								<td className="p-3 text-gray-900">{ev.time}</td>
-								<td className="p-3 text-gray-900">{ev.status || 'Ещё не опознано'}</td>
+
+								<td className="p-3">
+									<span className={`inline-block rounded-xl ${getStatusClass(ev.status)} px-3 py-2`}>
+										{ev.status || 'Ещё не опознано'}
+									</span>
+								</td>
+
 								<td className="p-3 text-gray-900">{ev.date}</td>
 								<td className="p-3 flex gap-2">
 									<button
@@ -82,7 +106,6 @@ const DataPage = ({ events, setEvents }) => {
 					</tbody>
 				</table>
 			</div>
-
 
 			{isModalOpen && (
 				<div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">

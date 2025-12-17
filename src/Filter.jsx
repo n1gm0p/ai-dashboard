@@ -7,7 +7,7 @@ import "./datepicker.css";
 registerLocale("ru", ru);
 
 const TYPES = ["Мусор", "Консьерж", "Конфликт"];
-const STATUS = ["Подтверждено", "В процессе", "Отклонено", "Ожидает уборки", "Ещё не опознано", "Чисто"];  // Добавлен статус "Чисто"
+const STATUS = ["Подтверждено", "В процессе", "Отклонено", "Ожидает уборки", "Ещё не опознано", "Чисто"];
 
 const CustomDateInput = React.forwardRef(({ value, onClick, placeholder }, ref) => (
 	<button
@@ -80,6 +80,23 @@ const Filter = ({ events, setEvents }) => {
 	const checkboxClass =
 		"h-10 px-3 flex items-center justify-center rounded-xl border border-[#E7D6C8] text-sm cursor-pointer transition";
 
+
+	const getStatusClass = (status) => {
+		switch (status) {
+			case 'Подтверждено':
+				return 'bg-green-100 text-[#38AD4D]';
+			case 'Чисто':
+				return 'bg-green-100 text-[#38AD4D]';
+			case 'В процессе':
+				return 'bg-yellow-100 text-[#CAC52C]';
+			case 'Отклонено':
+				return 'bg-red-100 text-red-600';
+			default:
+				return 'bg-gray-100 text-gray-500';
+		}
+	};
+
+
 	return (
 		<div className="flex-1 p-6 flex flex-col gap-6 bg-[#F5F6FA]">
 			<h2 className="text-2xl ml-[9px] font-700 text-gray-900">Списки нарушений</h2>
@@ -132,8 +149,6 @@ const Filter = ({ events, setEvents }) => {
 
 				<div className="flex gap-2 items-center ml-[10px]">
 					<span className="text-gray-700 text-sm font-medium">Статус:</span>
-
-
 					<label
 						key="Подтверждено"
 						className={`${checkboxClass} ${selectedStatus.includes("Подтверждено")
@@ -266,7 +281,11 @@ const Filter = ({ events, setEvents }) => {
 										{new Date(item.date).toLocaleDateString("ru-RU")}
 									</td>
 									<td className="p-3 text-gray-900">{item.type}</td>
-									<td className="p-3 text-gray-900">{item.status || 'Ещё не опознано'}</td>
+									<td className="p-3">
+										<span className={`inline-block rounded-xl ${getStatusClass(item.status)} px-3 py-2`}>
+											{item.status || 'Ещё не опознано'}
+										</span>
+									</td>
 								</tr>
 							))
 						) : (

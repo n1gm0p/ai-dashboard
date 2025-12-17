@@ -24,6 +24,23 @@ import {
 
 registerLocale('ru', ru);
 
+
+const getStatusClass = (status) => {
+	switch (status) {
+		case 'Подтверждено':
+			return 'bg-green-100 text-[#38AD4D]';
+		case 'Чисто':
+			return 'bg-green-100 text-[#38AD4D]';
+		case 'В процессе':
+			return 'bg-yellow-100 text-[#CAC52C]';
+		case 'Отклонено':
+			return 'bg-red-100 text-red-600';
+		default:
+			return 'bg-gray-100 text-gray-500';
+	}
+};
+
+
 const CustomDateInput = forwardRef(({ value, onClick }, ref) => (
 	<div className="relative w-32">
 		<input
@@ -65,7 +82,7 @@ const Dashboard = ({ events, setEvents, chartStart, chartEnd, setChartStart, set
 	const [selectedTypes, setSelectedTypes] = useState([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [selectedImage, setSelectedImage] = useState('');
-	
+
 
 	const toggleType = (type) =>
 		setSelectedTypes((prev) =>
@@ -179,206 +196,210 @@ const Dashboard = ({ events, setEvents, chartStart, chartEnd, setChartStart, set
 
 	return (
 
-			<div>
-				<h1 className="text-3xl mb-6 text-gray-900">Dashboard</h1>
+		<div>
+			<h1 className="text-3xl mb-6 text-gray-900">Dashboard</h1>
 
-				<div className="bg-white p-6 rounded-xl shadow mb-6">
-					<h2 className="text-2xl text-gray-900 mb-4">Уборка мусора</h2>
-					<div className="overflow-x-auto">
-						<table className="w-full table-auto border-collapse">
-							<thead>
-								<tr className="bg-gray-100">
-									<th className="py-2 px-4 text-left text-sm font-semibold text-gray-700 rounded-tl-xl">Лобби и Время</th>
-									<th className="py-2 pl-6 pr-6 text-left text-sm font-semibold text-gray-700">Фото</th>
-									<th className="py-2 pr-8 text-right text-sm font-semibold text-gray-700 rounded-tr-xl">Действие</th>
-								</tr>
-							</thead>
-							<tbody>
-								{trashEvents.length > 0 ? (
-									trashEvents.map((event) => (
-										<tr key={event.id} className="border-t hover:bg-gray-50">
-											<td className="py-3 px-4 text-sm text-gray-900">{event.lobby} - {event.time}</td>
-											<td className="py-3 pl-4 pr-4">
-												<img
-													src={event.image}
-													alt={`Мусор в ${event.lobby}`}
-													className="w-12 h-12 object-cover rounded-xl cursor-pointer"
-													onClick={() => handleImageClick(event.image)}
-												/>
-											</td>
-											<td className="py-3 px-4 text-right"> 
-												<button
-													onClick={() => handleCleaned(event.id)}
-													className="px-4 py-2 bg-[#E7D6C8] text-white rounded-xl"
-												>
-													Убрать
-												</button>
-											</td>
-										</tr>
-
-									))
-								) : (
-									<tr>
-										<td colSpan="3" className="text-center py-3 text-gray-500">Нет мусора на уборку</td>
-									</tr>
-								)}
-							</tbody>
-						</table>
-					</div>
-
-
-					{isModalOpen && (
-						<div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50">
-							<div className="relative bg-white p-4 rounded-xl">
-								<button
-									onClick={closeModal}
-									className="absolute top-2 right-2 text-sm text-gray-500"
-								>
-									×
-								</button>
-								<img
-									src={selectedImage}
-									alt="Большое изображение мусора"
-									className="w-[500px] h-[500px] object-contain"
-								/>
-							</div>
-						</div>
-					)}
-				</div>
-
-
-
-
-
-				<div className="bg-white p-6 rounded-xl shadow mb-6 relative">
-					<h2 className="absolute top-4 left-4 text-2xl text-gray-900">Статистика по выбранному периоду</h2>
-					<div className="absolute top-4 right-10 flex gap-2" style={{ width: '280px', justifyContent: 'space-between' }}>
-						<DatePicker
-							selected={chartStart}
-							onChange={setChartStart}
-							customInput={<CustomDateInput />}
-							dateFormat="dd.MM.yyyy"
-							selectsStart
-							startDate={chartStart}
-							endDate={chartEnd}
-							locale="ru"
-						/>
-						<DatePicker
-							selected={chartEnd}
-							onChange={setChartEnd}
-							customInput={<CustomDateInput />}
-							dateFormat="dd.MM.yyyy"
-							selectsEnd
-							startDate={chartStart}
-							endDate={chartEnd}
-							locale="ru"
-						/>
-					</div>
-					<div className="w-full h-[260px] mt-10">
-						<ResponsiveContainer width="100%" height="100%">
-							<LineChart data={chartData}>
-								<CartesianGrid horizontal vertical={false} stroke="#eee" />
-								<XAxis dataKey="day" tick={{ fill: '#636566', fontSize: 14 }} />
-								<YAxis domain={[0, 10]} ticks={[0, 2, 4, 6, 8, 10]} axisLine={false} tickLine={false} tick={{ fill: '#636566', fontSize: 14 }} />
-								<Tooltip content={<CustomTooltip />} />
-								<Line type="monotone" dataKey="value" stroke="#9D9086" strokeWidth={2} dot={{ fill: '#9D9086' }} />
-							</LineChart>
-						</ResponsiveContainer>
-					</div>
-				</div>
-
-				<div className="flex items-center gap-4 mb-5 relative z-10">
-					<span className="font-semibold text-gray-900">Выберите тип периода:</span>
-					<button
-						onClick={() => setPeriodType('day')}
-						className={`h-10 px-3 rounded-xl border ${periodType === 'day' ? 'bg-[#E7D6C8] text-white border-[#E7D6C8]' : 'bg-white text-black border-[#E7D6C8]'}`}
-					>
-						<span className="relative top-[-4px]">День</span>
-					</button>
-					<button
-						onClick={() => setPeriodType('week')}
-						className={`h-10 px-3 rounded-xl border ${periodType === 'week' ? 'bg-[#E7D6C8] text-white border-[#E7D6C8]' : 'bg-white text-black border-[#E7D6C8]'}`}
-					>
-						<span className="relative top-[-4px]">Неделя</span>
-					</button>
-					{periodType === 'day' && (
-						<div className="ml-4 relative z-50">
-							<DatePicker
-								selected={selectedDate}
-								onChange={handleDayChange}
-								customInput={<CustomDateInput />}
-								dateFormat="dd.MM.yyyy"
-								locale="ru"
-								calendarStartDay={1}
-								minDate={new Date(2025, 0, 1)}
-								maxDate={new Date(2025, 11, 31)}
-							/>
-						</div>
-					)}
-					{periodType === 'week' && (
-						<div className="ml-4 relative z-50">
-							<DatePicker
-								selected={selectedWeek[0]}
-								onChange={handleWeekChange}
-								customInput={<CustomDateInput />}
-								dateFormat="dd.MM.yyyy"
-								locale="ru"
-								calendarStartDay={1}
-								renderDayContents={renderWeekDay}
-								minDate={new Date(2025, 0, 1)}
-								maxDate={new Date(2025, 11, 31)}
-							/>
-						</div>
-					)}
-				</div>
-
-				<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-					<div className="bg-white p-5 rounded-xl shadow">
-						<h2 className="text-[#636566]">Конфликты</h2>
-						<p className="text-3xl font-semibold text-[#202224]">{stats.conflicts}</p>
-					</div>
-					<div className="bg-white p-5 rounded-xl shadow">
-						<h2 className="text-[#636566]">Мусор</h2>
-						<p className="text-3xl font-semibold text-[#202224]">{stats.trash}</p>
-					</div>
-					<div className="bg-white p-5 rounded-xl shadow">
-						<h2 className="text-[#636566]">Консьерж</h2>
-						<p className="text-3xl font-semibold text-[#202224]">{stats.concierge}</p>
-					</div>
-				</div>
-
-				<h2 className="text-2xl mb-4 text-gray-900">Последние события</h2>
-				<div className="bg-white rounded-xl shadow overflow-auto">
-					<table className="w-full text-left border-collapse min-w-[500px]">
+			<div className="bg-white p-6 rounded-xl shadow mb-6">
+				<h2 className="text-2xl text-gray-900 mb-4">Уборка мусора</h2>
+				<div className="overflow-x-auto">
+					<table className="w-full table-auto border-collapse">
 						<thead>
-							<tr className="border-b border-gray-200">
-								<th className="p-3 text-gray-600">Тип</th>
-								<th className="p-3 text-gray-600">Лобби</th>
-								<th className="p-3 text-gray-600">Время</th>
-								<th className="p-3 text-gray-600">Статус</th>
+							<tr className="bg-gray-100">
+								<th className="py-2 px-4 text-left text-sm font-semibold text-gray-700 rounded-tl-xl">Лобби и Время</th>
+								<th className="py-2 pl-6 pr-6 text-left text-sm font-semibold text-gray-700">Фото</th>
+								<th className="py-2 pr-8 text-right text-sm font-semibold text-gray-700 rounded-tr-xl">Действие</th>
 							</tr>
 						</thead>
 						<tbody>
-							{filteredEvents.length ? (
-								filteredEvents.map((e) => (
-									<tr key={e.id} className="border-b border-gray-100 hover:bg-gray-50 transition">
-										<td className="p-3 text-gray-900">{e.type}</td>
-										<td className="p-3 text-gray-900">{e.lobby}</td>
-										<td className="p-3 text-gray-900">{e.time}</td>
-										<td className="p-3 text-gray-900">{e.status}</td>
+							{trashEvents.length > 0 ? (
+								trashEvents.map((event) => (
+									<tr key={event.id} className="border-t hover:bg-gray-50">
+										<td className="py-3 px-4 text-sm text-gray-900">{event.lobby} - {event.time}</td>
+										<td className="py-3 pl-4 pr-4">
+											<img
+												src={event.image}
+												alt={`Мусор в ${event.lobby}`}
+												className="w-12 h-12 object-cover rounded-xl cursor-pointer"
+												onClick={() => handleImageClick(event.image)}
+											/>
+										</td>
+										<td className="py-3 px-4 text-right">
+											<button
+												onClick={() => handleCleaned(event.id)}
+												className="px-4 py-2 bg-[#E7D6C8] text-white rounded-xl"
+											>
+												Убрать
+											</button>
+										</td>
 									</tr>
+
 								))
 							) : (
 								<tr>
-									<td colSpan="4" className="text-center p-4 text-gray-500">
-										Нет событий за выбранный период
-									</td>
+									<td colSpan="3" className="text-center py-3 text-gray-500">Нет мусора на уборку</td>
 								</tr>
 							)}
 						</tbody>
 					</table>
 				</div>
+
+
+				{isModalOpen && (
+					<div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50">
+						<div className="relative bg-white p-4 rounded-xl">
+							<button
+								onClick={closeModal}
+								className="absolute top-2 right-2 text-sm text-gray-500"
+							>
+								×
+							</button>
+							<img
+								src={selectedImage}
+								alt="Большое изображение мусора"
+								className="w-[500px] h-[500px] object-contain"
+							/>
+						</div>
+					</div>
+				)}
 			</div>
+
+
+
+
+
+			<div className="bg-white p-6 rounded-xl shadow mb-6 relative">
+				<h2 className="absolute top-4 left-4 text-2xl text-gray-900">Статистика по выбранному периоду</h2>
+				<div className="absolute top-4 right-10 flex gap-2" style={{ width: '280px', justifyContent: 'space-between' }}>
+					<DatePicker
+						selected={chartStart}
+						onChange={setChartStart}
+						customInput={<CustomDateInput />}
+						dateFormat="dd.MM.yyyy"
+						selectsStart
+						startDate={chartStart}
+						endDate={chartEnd}
+						locale="ru"
+					/>
+					<DatePicker
+						selected={chartEnd}
+						onChange={setChartEnd}
+						customInput={<CustomDateInput />}
+						dateFormat="dd.MM.yyyy"
+						selectsEnd
+						startDate={chartStart}
+						endDate={chartEnd}
+						locale="ru"
+					/>
+				</div>
+				<div className="w-full h-[260px] mt-10">
+					<ResponsiveContainer width="100%" height="100%">
+						<LineChart data={chartData}>
+							<CartesianGrid horizontal vertical={false} stroke="#eee" />
+							<XAxis dataKey="day" tick={{ fill: '#636566', fontSize: 14 }} />
+							<YAxis domain={[0, 10]} ticks={[0, 2, 4, 6, 8, 10]} axisLine={false} tickLine={false} tick={{ fill: '#636566', fontSize: 14 }} />
+							<Tooltip content={<CustomTooltip />} />
+							<Line type="monotone" dataKey="value" stroke="#9D9086" strokeWidth={2} dot={{ fill: '#9D9086' }} />
+						</LineChart>
+					</ResponsiveContainer>
+				</div>
+			</div>
+
+			<div className="flex items-center gap-4 mb-5 relative z-10">
+				<span className="font-semibold text-gray-900">Выберите тип периода:</span>
+				<button
+					onClick={() => setPeriodType('day')}
+					className={`h-10 px-3 rounded-xl border ${periodType === 'day' ? 'bg-[#E7D6C8] text-white border-[#E7D6C8]' : 'bg-white text-black border-[#E7D6C8]'}`}
+				>
+					<span className="relative top-[-4px]">День</span>
+				</button>
+				<button
+					onClick={() => setPeriodType('week')}
+					className={`h-10 px-3 rounded-xl border ${periodType === 'week' ? 'bg-[#E7D6C8] text-white border-[#E7D6C8]' : 'bg-white text-black border-[#E7D6C8]'}`}
+				>
+					<span className="relative top-[-4px]">Неделя</span>
+				</button>
+				{periodType === 'day' && (
+					<div className="ml-4 relative z-50">
+						<DatePicker
+							selected={selectedDate}
+							onChange={handleDayChange}
+							customInput={<CustomDateInput />}
+							dateFormat="dd.MM.yyyy"
+							locale="ru"
+							calendarStartDay={1}
+							minDate={new Date(2025, 0, 1)}
+							maxDate={new Date(2025, 11, 31)}
+						/>
+					</div>
+				)}
+				{periodType === 'week' && (
+					<div className="ml-4 relative z-50">
+						<DatePicker
+							selected={selectedWeek[0]}
+							onChange={handleWeekChange}
+							customInput={<CustomDateInput />}
+							dateFormat="dd.MM.yyyy"
+							locale="ru"
+							calendarStartDay={1}
+							renderDayContents={renderWeekDay}
+							minDate={new Date(2025, 0, 1)}
+							maxDate={new Date(2025, 11, 31)}
+						/>
+					</div>
+				)}
+			</div>
+
+			<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+				<div className="bg-white p-5 rounded-xl shadow">
+					<h2 className="text-[#636566]">Конфликты</h2>
+					<p className="text-3xl font-semibold text-[#202224]">{stats.conflicts}</p>
+				</div>
+				<div className="bg-white p-5 rounded-xl shadow">
+					<h2 className="text-[#636566]">Мусор</h2>
+					<p className="text-3xl font-semibold text-[#202224]">{stats.trash}</p>
+				</div>
+				<div className="bg-white p-5 rounded-xl shadow">
+					<h2 className="text-[#636566]">Консьерж</h2>
+					<p className="text-3xl font-semibold text-[#202224]">{stats.concierge}</p>
+				</div>
+			</div>
+
+			<h2 className="text-2xl mb-4 text-gray-900">Последние события</h2>
+			<div className="bg-white rounded-xl shadow overflow-auto">
+				<table className="w-full text-left border-collapse min-w-[500px]">
+					<thead>
+						<tr className="border-b border-gray-200">
+							<th className="p-3 text-gray-600">Тип</th>
+							<th className="p-3 text-gray-600">Лобби</th>
+							<th className="p-3 text-gray-600">Время</th>
+							<th className="p-3 text-gray-600">Статус</th>
+						</tr>
+					</thead>
+					<tbody>
+						{filteredEvents.length ? (
+							filteredEvents.map((e) => (
+								<tr key={e.id} className="border-b border-gray-100 hover:bg-gray-50 transition">
+									<td className="p-3 text-gray-900">{e.type}</td>
+									<td className="p-3 text-gray-900">{e.lobby}</td>
+									<td className="p-3 text-gray-900">{e.time}</td>
+									<td className="p-3">
+										<span className={`inline-block rounded-xl ${getStatusClass(e.status)} px-3 py-2`}>
+											{e.status || 'Ещё не опознано'}
+										</span>
+									</td>
+								</tr>
+							))
+						) : (
+							<tr>
+								<td colSpan="4" className="text-center p-4 text-gray-500">
+									Нет событий за выбранный период
+								</td>
+							</tr>
+						)}
+					</tbody>
+				</table>
+			</div>
+		</div>
 
 	);
 };
